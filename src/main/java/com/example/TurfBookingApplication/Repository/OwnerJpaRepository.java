@@ -6,4 +6,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface OwnerJpaRepository extends JpaRepository<Owner, Integer> {
+    boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
+    boolean existsByPhoneNumber(String phoneNumber);
+    Owner findByUsername(String username);
 }

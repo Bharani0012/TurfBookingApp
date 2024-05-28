@@ -15,7 +15,7 @@
 	<properties>
 		<java.version>17</java.version>
 			<!--... -->
-			<spring-security.version>6.0.0</spring-security.version>
+			<spring-security.version>6.1.2</spring-security.version>
 	</properties>
 	<dependencies>
 		<!-- JWT -->
@@ -94,7 +94,13 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 	<build>
 		<plugins>
 			<plugin>

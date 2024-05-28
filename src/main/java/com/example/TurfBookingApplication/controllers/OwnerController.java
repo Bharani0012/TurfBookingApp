@@ -1,6 +1,7 @@
 package com.example.TurfBookingApplication.controllers;
 
 import com.example.TurfBookingApplication.Entity.Owner;
+import com.example.TurfBookingApplication.Entity.Turf;
 import com.example.TurfBookingApplication.LoginAuths.LoginRequest;
 import com.example.TurfBookingApplication.LoginAuths.LoginResponse;
 import com.example.TurfBookingApplication.services.JwtService;
@@ -9,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/owners")
@@ -20,13 +23,21 @@ public class OwnerController {
     @Autowired
     private JwtService jwtService;
 
-    @GetMapping("/{ownerId}/getOwner")
-    public ResponseEntity<Owner> getOwner(@PathVariable int ownerId) {
-        try{
-        Owner owner = ownerService.getOwnerById(ownerId);
-        return new ResponseEntity<>(owner, HttpStatus.OK);}
-        catch(Exception e){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @GetMapping("/{ownerId}/get_owner")
+    public ResponseEntity<Object> getOwner(@PathVariable Long ownerId, @RequestHeader(value="Authorization") String token) {
+        String username = jwtService.getUsernameFromToken(token);
+
+        // Get the owner from the database
+        Owner existingOwner = ownerService.getOwnerById(ownerId);
+        if (existingOwner != null && username != null && username.equals(existingOwner.getUsername())){
+            try{
+                Owner owner = ownerService.getOwnerById(ownerId);
+                return new ResponseEntity<>(owner, HttpStatus.OK);
+            }catch(Exception e){
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        }else{
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not authorized to get this owner.");
         }
     }
 
@@ -63,13 +74,11 @@ public class OwnerController {
     }
 
     @PutMapping("/{ownerId}/update")
-    public ResponseEntity<Object> updateOwner(@RequestBody Owner owner, @PathVariable int ownerId,
+    public ResponseEntity<Object> updateOwner(@RequestBody Owner owner, @PathVariable Long ownerId,
                                               @RequestHeader(value="Authorization") String token) {
 
-        String newToken=token.substring(7);
-
         // Extract the username from the token
-        String username = jwtService.getUsernameFromToken(newToken);
+        String username = jwtService.getUsernameFromToken(token);
 
         // Get the owner from the database
         Owner existingOwner = ownerService.getOwnerById(ownerId);
@@ -86,14 +95,33 @@ public class OwnerController {
 
     }
     @DeleteMapping("/{ownerId}/delete")
-    public void deleteOwner(@PathVariable int ownerId, @RequestHeader(value="Authorization") String token) {
-        String username = jwtService.getUsernameFromToken(token);
-        Owner owner = ownerService.getOwnerById(ownerId);
+    public void deleteOwner(@PathVariable Long ownerId, @RequestHeader(value="Authorization") String token) {
 
-        if (owner != null) {
+        // Extract the username from the token
+        String username = jwtService.getUsernameFromToken(token);
+
+        // Get the owner from the database
+        Owner existingOwner = ownerService.getOwnerById(ownerId);
+
+        if (existingOwner != null && username != null && username.equals(existingOwner.getUsername())) {
             ownerService.deleteOwner(ownerId);
         }
 
     }
 
+    @GetMapping("/{ownerId}/turfs")
+    public ResponseEntity<Object> getTurfsByOwnerId(@PathVariable Long ownerId, @RequestHeader(value="Authorization") String token) {
+        String username = jwtService.getUsernameFromToken(token);
+        Owner existingOwner = ownerService.getOwnerById(ownerId);
+        if (existingOwner != null && username != null && username.equals(existingOwner.getUsername())) {
+            try {
+                List<Turf> turf=ownerService.getTurfsByOwnerId(ownerId);
+                return new ResponseEntity<>(turf, HttpStatus.OK);
+            }catch (Exception e){
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        }else{
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not authorized to get this turf.");
+        }
+    }
 }

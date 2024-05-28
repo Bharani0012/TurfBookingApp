@@ -17,18 +17,18 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http    .addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+        http
+                .addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/api/owners/register", "/api/owners/login").permitAll() // Permit access to the registration endpoint
-                        .anyRequest().authenticated() // Require authentication for other endpoints
+                        .requestMatchers("/owners/register", "/owners/login").permitAll() // Permit access to the registration and login endpoints
+                        .requestMatchers("/owners/**").authenticated() // Require authentication for other /owners endpoints
                 )
                 .formLogin((formLogin) -> formLogin
-                        .loginPage("/api/owners/login") // Customize login page if needed
+                        .loginPage("/owners/login") // Customize login page if needed
                         .permitAll()
                 )
-                .logout(LogoutConfigurer::permitAll
-                );
+                .logout(LogoutConfigurer::permitAll);
         return http.build();
     }
-
 }
+

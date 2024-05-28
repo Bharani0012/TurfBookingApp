@@ -1,11 +1,13 @@
 package com.example.TurfBookingApplication.services;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.DecodingException;
 import io.jsonwebtoken.security.Keys;
-import jakarta.xml.bind.DatatypeConverter;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Key;
 import java.sql.Date;
@@ -43,9 +45,10 @@ public class JwtService {
                     .build()
                     .parseClaimsJws(token);
             return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            // If the token is expired or signature does not match, it will throw an exception
-            return false;
+        }catch (JwtException | IllegalArgumentException e) {
+            // handle the exception here
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED, "JWT processing failed", e);
         }
     }
 
@@ -61,13 +64,14 @@ public class JwtService {
 
 
     public String getUsernameFromToken(String token) {
+        String newToken=token.substring(7);
         try {
-            Claims claims = Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token).getBody();
+            Claims claims = Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(newToken).getBody();
             return claims.getSubject();
-        } catch (io.jsonwebtoken.io.DecodingException e) {
+        } catch (JwtException | IllegalArgumentException e) {
             // handle the exception here
-            System.out.println("DecodingException: " + e.getMessage());
-            return null;
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED, "JWT processing failed", e);
         }
     }
 

@@ -1,6 +1,7 @@
 package com.example.TurfBookingApplication.services;
 
 import com.example.TurfBookingApplication.Entity.Owner;
+import com.example.TurfBookingApplication.Entity.Turf;
 import com.example.TurfBookingApplication.Repository.OwnerJpaRepository;
 import com.example.TurfBookingApplication.Repository.OwnerRepository;
 import com.example.TurfBookingApplication.util.PasswordUtil;
@@ -8,11 +9,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class OwnerService implements OwnerRepository {
 
     @Autowired
     private OwnerJpaRepository ownerJpaRepository;
+
+    public Owner findByOwnerName(String ownerName) {
+        return ownerJpaRepository.findByUsername(ownerName);
+    }
 
     @Override
     public Owner addOwner(Owner owner) {
@@ -40,7 +47,7 @@ public class OwnerService implements OwnerRepository {
     @Override
     public Owner validateOwner(String username, String password) {
         // Fetch the owner from the database using the username
-        Owner owner = ownerJpaRepository.findByUsername(username);
+        Owner owner = findByOwnerName(username);
         // If the owner exists and the password matches, return the owner
         if (owner != null && PasswordUtil.matchPassword(password, owner.getPassword())) {
             return owner;
@@ -50,7 +57,7 @@ public class OwnerService implements OwnerRepository {
     }
 
     @Override
-    public Owner updateOwner(Owner owner, int ownerId) {
+    public Owner updateOwner(Owner owner, long ownerId) {
 
         try{
             Owner oldOwner = ownerJpaRepository.findById(ownerId).get();
@@ -87,13 +94,34 @@ public class OwnerService implements OwnerRepository {
     }
 
     @Override
-    public void deleteOwner(int ownerId) {
+    public void deleteOwner(long ownerId) {
         ownerJpaRepository.deleteById(ownerId);
     }
 
     @Override
-    public Owner getOwnerById(int ownerId) {
-        return ownerJpaRepository.findById(ownerId).get();
+    public List<Turf> getTurfsByOwnerId(long ownerId) {
+        Owner owner=ownerJpaRepository.findById(ownerId).get();
+        if(owner.getUsername()==null){
+            throw new RuntimeException("Owner not found");
+        }
+
+        try{
+            return owner.getTurfs();
+        }catch (Exception e){
+            throw new RuntimeException("Failed to retrieve turfs from database: " + e.getMessage());
+        }
+
+    }
+
+    @Override
+    public Owner getOwnerById(long ownerId) {
+        try{
+            Owner owner= ownerJpaRepository.findById(ownerId).get();
+            return owner;
+        }catch (Exception e){
+            throw new RuntimeException("Failed to retrieve owner from database: " + e.getMessage());
+        }
+
     }
 
 

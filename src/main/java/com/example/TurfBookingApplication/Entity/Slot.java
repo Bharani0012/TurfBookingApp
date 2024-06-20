@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 import java.time.LocalDateTime;
 
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+
 @Entity
+@EntityScan
 @Getter
 @Setter
 @AllArgsConstructor
@@ -33,10 +35,11 @@ public class Slot {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "turf_id")
-    @JsonBackReference
+    @JsonBackReference("turf-slots")
     private Turf turf;
 
-//    @OneToOne(mappedBy = "slot", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    private Booking booking;
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "booking_id", nullable = false)
+    @JsonBackReference("booking-slots")
+    private Booking booking;
 }

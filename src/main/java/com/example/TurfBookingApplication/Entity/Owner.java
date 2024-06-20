@@ -9,9 +9,10 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
-//import java.util.UUID;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 @Entity
+@EntityScan
 @Getter
 @Setter
 @AllArgsConstructor
@@ -25,7 +26,7 @@ public class Owner {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="owner_id",nullable = false, unique = true )
+    @Column(name="owner_id", nullable = false, unique = true)
     private Long ownerId;
 
     @Column(name = "username", nullable = false, unique = true)
@@ -46,8 +47,7 @@ public class Owner {
     @Column(name = "phone_number", unique = true)
     private String phoneNumber;
 
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonManagedReference("owner-turfs")
     private List<Turf> turfs = new ArrayList<>();
 }
-

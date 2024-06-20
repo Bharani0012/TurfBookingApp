@@ -116,13 +116,11 @@ public class OwnerService implements OwnerRepository {
     @Override
     public Owner getOwnerById(long ownerId) {
         try{
-            Owner owner= ownerJpaRepository.findById(ownerId).get();
-            return owner;
+            return ownerJpaRepository.findById(ownerId).get();
         }catch (Exception e){
             throw new RuntimeException("Failed to retrieve owner from database: " + e.getMessage());
         }
 
     }
-
 
 }

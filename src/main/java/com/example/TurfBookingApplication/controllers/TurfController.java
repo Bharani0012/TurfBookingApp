@@ -40,6 +40,7 @@ public class TurfController {
     @PostMapping("/publish")
     public ResponseEntity<Object> publishTurf(@PathVariable Long ownerId, @RequestHeader(value = "Authorization") String token, @Valid @RequestBody Turf turf) {
         validateOwner(token, ownerId);
+        System.out.println(turf.getOwner().getUsername()+" "+ownerId);
         if (!Objects.equals(turf.getOwner().getOwnerId(), ownerId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authorized to publish this turf.");
         }
@@ -95,7 +96,7 @@ public class TurfController {
         }
     }
 
-    @DeleteMapping("/{turfId}")
+    @DeleteMapping("/delete/{turfId}")
     public ResponseEntity<Object> deleteTurf(@PathVariable Long ownerId, @PathVariable Long turfId, @RequestHeader(value = "Authorization") String token) {
         validateOwner(token, ownerId);
         try {
@@ -103,12 +104,13 @@ public class TurfController {
             if (!Objects.equals(turf.getOwner().getOwnerId(), ownerId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authorized to delete this turf.");
             }
-            turfService.deleteTurf(turfId);
-            return ResponseEntity.ok(turf.getTurfName() + " has been deleted.");
+            turfService.deleteTurfById(turfId);
+            return ResponseEntity.ok("turf has been deleted.");
         } catch (RuntimeException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Turf not found");
         }
     }
+
 
     @PostMapping("/{turfId}/images")
     public ResponseEntity<Object> addImage(@PathVariable Long ownerId, @PathVariable Long turfId, @RequestHeader(value = "Authorization") String token, @Valid @RequestBody TurfImage turfImage) {

@@ -7,15 +7,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-//import java.util.UUID;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@EntityScan
 @Table(name = "turf_image")
 public class TurfImage {
 
@@ -29,7 +28,6 @@ public class TurfImage {
 
     @ManyToOne
     @JoinColumn(name = "turf_id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference("turf-turfImages")
     private Turf turf;
-
 }

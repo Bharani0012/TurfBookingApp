@@ -5,19 +5,20 @@ import jakarta.persistence.*;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-//import java.util.UUID;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@EntityScan
 @Table(name = "turf")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "turfId")
 public class Turf {
 
     @Id
@@ -41,15 +42,19 @@ public class Turf {
     private String description;
 
     @OneToMany(mappedBy = "turf", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonManagedReference("turf-turfImages")
     private List<TurfImage> turfImages;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
-    @JsonIdentityReference(alwaysAsId = true) // This annotation replaces the `Owner` object with its `ownerId`
+    @JsonBackReference("owner-turfs")
     private Owner owner;
 
     @OneToMany(mappedBy = "turf", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonManagedReference("turf-slots")
     private Set<Slot> slots;
+
+    @OneToMany(mappedBy = "turf", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonManagedReference("turf-bookings")
+    private List<Booking> bookings;
 }

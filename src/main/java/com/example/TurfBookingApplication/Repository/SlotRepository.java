@@ -13,5 +13,5 @@ public interface SlotRepository {
 
     Slot updateSlot(Long id, Slot slotDetails);
 
-    void deleteSlot(Long id);
+    void deleteSlot(long id);
 }

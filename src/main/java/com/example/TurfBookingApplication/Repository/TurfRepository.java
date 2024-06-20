@@ -14,7 +14,7 @@ public interface TurfRepository {
 
     Turf getTurfByTurfId(long turfId);
 
-    void deleteTurf(Long turfId);
+    void deleteTurfById(long turfId);
 
     Turf updateTurf(Turf turf, Long turfId);
 

@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,7 +65,7 @@ public class SlotService implements SlotRepository {
     }
 
     @Override
-    public void deleteSlot(Long id) {
+    public void deleteSlot(long id) {
         try {
             Optional<Slot> optionalSlot = slotJpaRepository.findById(id);
             if (optionalSlot.isPresent()) {
@@ -73,6 +75,19 @@ public class SlotService implements SlotRepository {
             }
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete slot", e);
+        }
+    }
+
+    // Scheduled task to mark past slots as unavailable
+    @Scheduled(fixedRate = 60000) // Runs every minute
+    public void markPastSlotsAsUnavailable() {
+        List<Slot> slots = slotJpaRepository.findAll();
+        LocalDateTime now = LocalDateTime.now();
+        for (Slot slot : slots) {
+            if (slot.getEndTime().isBefore(now) && !slot.isBooked()) {
+                slot.setBooked(false);
+                slotJpaRepository.save(slot);
+            }
         }
     }
 }

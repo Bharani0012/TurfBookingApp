@@ -24,7 +24,9 @@ public class OwnerController {
     private JwtService jwtService;
 
     @GetMapping("/{ownerId}/get_owner")
-    public ResponseEntity<Object> getOwner(@PathVariable Long ownerId, @RequestHeader(value="Authorization") String token) {
+    public ResponseEntity<Object> getOwner(@PathVariable Long ownerId,
+                                           @RequestHeader(value="Authorization") String token)
+    {
         String username = jwtService.getUsernameFromToken(token);
 
         // Get the owner from the database
@@ -45,7 +47,8 @@ public class OwnerController {
     public ResponseEntity<Object> registerOwner(@RequestBody Owner owner) {
         try {
             Owner registeredOwner = ownerService.addOwner(owner);
-            return ResponseEntity.ok(registeredOwner);
+            System.out.println(owner);
+            return new ResponseEntity<>(registeredOwner, HttpStatus.CREATED);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
@@ -95,8 +98,7 @@ public class OwnerController {
 
     }
     @DeleteMapping("/{ownerId}/delete")
-    public void deleteOwner(@PathVariable Long ownerId, @RequestHeader(value="Authorization") String token) {
-
+    public ResponseEntity<Object> deleteOwner(@PathVariable Long ownerId, @RequestHeader(value = "Authorization") String token) {
         // Extract the username from the token
         String username = jwtService.getUsernameFromToken(token);
 
@@ -104,10 +106,18 @@ public class OwnerController {
         Owner existingOwner = ownerService.getOwnerById(ownerId);
 
         if (existingOwner != null && username != null && username.equals(existingOwner.getUsername())) {
-            ownerService.deleteOwner(ownerId);
+            try {
+                ownerService.deleteOwner(ownerId);
+                return ResponseEntity.ok("Owner deleted successfully");
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("An unexpected error occurred while deleting the owner.");
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not authorized to delete this owner.");
         }
-
     }
+
 
     @GetMapping("/{ownerId}/turfs")
     public ResponseEntity<Object> getTurfsByOwnerId(@PathVariable Long ownerId, @RequestHeader(value="Authorization") String token) {

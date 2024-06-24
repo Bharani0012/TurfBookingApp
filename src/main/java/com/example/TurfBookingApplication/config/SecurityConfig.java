@@ -4,6 +4,7 @@ package com.example.TurfBookingApplication.config;
 import com.example.TurfBookingApplication.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
@@ -17,8 +18,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
+        return   http
+
                 .addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/owners/register", "/owners/login").permitAll() // Permit access to the registration and login endpoints
                         .requestMatchers("/owners/**").authenticated() // Require authentication for other /owners endpoints
@@ -27,8 +30,9 @@ public class SecurityConfig {
                         .loginPage("/owners/login") // Customize login page if needed
                         .permitAll()
                 )
-                .logout(LogoutConfigurer::permitAll);
-        return http.build();
+                .logout(LogoutConfigurer::permitAll)
+                .cors(Customizer.withDefaults())
+                .build();
     }
 }
 

@@ -19,9 +19,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return   http
-
+                .cors(Customizer.withDefaults())
                 .addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/owners/register", "/owners/login").permitAll() // Permit access to the registration and login endpoints
                         .requestMatchers("/owners/**").authenticated() // Require authentication for other /owners endpoints
@@ -31,7 +30,6 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .logout(LogoutConfigurer::permitAll)
-                .cors(Customizer.withDefaults())
                 .build();
     }
 }

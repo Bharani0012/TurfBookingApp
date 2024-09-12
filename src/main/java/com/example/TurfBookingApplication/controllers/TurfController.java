@@ -157,6 +157,7 @@ public class TurfController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Turf or image not found");
         }
     }
+
     @GetMapping("/turfs/nearby")
     public ResponseEntity<List<Turf>> findTurfsNearby(
             @RequestParam("latitude") double latitude,

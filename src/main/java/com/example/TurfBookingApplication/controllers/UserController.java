@@ -1,8 +1,9 @@
 package com.example.TurfBookingApplication.controllers;
 
 import com.example.TurfBookingApplication.Entity.User;
+import com.example.TurfBookingApplication.LoginAuths.LoginFailureResponse;
 import com.example.TurfBookingApplication.LoginAuths.LoginRequest;
-import com.example.TurfBookingApplication.LoginAuths.LoginResponse;
+import com.example.TurfBookingApplication.LoginAuths.LoginSuccessResponse;
 import com.example.TurfBookingApplication.services.JwtService;
 import com.example.TurfBookingApplication.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,10 +60,10 @@ public class UserController {
             if (user != null) {
                 // If the user is valid, generate the token
                 String token = jwtService.generateToken(loginRequest.getUsername());
-                return ResponseEntity.ok(new LoginResponse(token));
+                return ResponseEntity.ok(new LoginSuccessResponse(token));
             } else {
                 // If the user is not valid, return an error message
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginFailureResponse("Invalid User Name or Password"));
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

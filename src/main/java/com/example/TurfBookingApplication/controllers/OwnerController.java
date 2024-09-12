@@ -2,8 +2,9 @@ package com.example.TurfBookingApplication.controllers;
 
 import com.example.TurfBookingApplication.Entity.Owner;
 import com.example.TurfBookingApplication.Entity.Turf;
+import com.example.TurfBookingApplication.LoginAuths.LoginFailureResponse;
 import com.example.TurfBookingApplication.LoginAuths.LoginRequest;
-import com.example.TurfBookingApplication.LoginAuths.LoginResponse;
+import com.example.TurfBookingApplication.LoginAuths.LoginSuccessResponse;
 import com.example.TurfBookingApplication.services.JwtService;
 import com.example.TurfBookingApplication.services.OwnerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,12 +66,15 @@ public class OwnerController {
             if (owner != null) {
                 // If the owner is valid, generate the token
                 String token = jwtService.generateToken(loginRequest.getUsername());
-                return ResponseEntity.ok(new LoginResponse(token));
+                return ResponseEntity.ok(new LoginSuccessResponse(token)); // Success: 200 OK with token
             } else {
                 // If the owner is not valid, return an error message
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password.");
+
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginFailureResponse("Invalid username or password"));
             }
         } catch (Exception e) {
+            // Log the unexpected error
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An unexpected error occurred while logging in the owner.");
         }
@@ -117,7 +121,6 @@ public class OwnerController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not authorized to delete this owner.");
         }
     }
-
 
     @GetMapping("/{ownerId}/turfs")
     public ResponseEntity<Object> getTurfsByOwnerId(@PathVariable Long ownerId, @RequestHeader(value="Authorization") String token) {

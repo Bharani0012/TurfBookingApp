@@ -8,6 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class LoginResponse {
+public class LoginSuccessResponse {
     private String jwt_token;
 }
